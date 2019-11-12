@@ -3,6 +3,7 @@ package Trabalho4_VictorCarvalho;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 
@@ -13,9 +14,12 @@ public class MiniCanvasSample extends JPanel {
     static private int y = 0;
     private DatagramPacket packet;
     private InetAddress address;
-    private byte [] posicao;
+    private byte[] posicao;
 
-    private MulticastSocket workingSocket;
+    static Jogador player;
+    static ArrayList<Jogador> jogadores = new ArrayList<Jogador>();
+
+    private static MulticastSocket workingSocket;
     static final int MULTICAST_PORT = 4446;
     static final String MULTICAST_IP_ADDRESS = "230.0.0.1";
     InetAddress group = null;
@@ -34,8 +38,9 @@ public class MiniCanvasSample extends JPanel {
             workingSocket = new MulticastSocket(MULTICAST_PORT);
             group = InetAddress.getByName(MULTICAST_IP_ADDRESS);
             workingSocket.joinGroup(group);
-
+            new Threads();
             System.out.println("entrou no grupo");
+
         } catch (Exception err) {
             System.out.println(err);
         }
@@ -51,21 +56,21 @@ public class MiniCanvasSample extends JPanel {
         //Desenha o nome do usuario
 
         g.drawString(username, x, y);
-                                                              
-        
-        try {   
+
+        try {
+            System.out.println(jogadores);
             address = InetAddress.getByName(MULTICAST_IP_ADDRESS);
             packet = new DatagramPacket(posicao, posicao.length, address, MULTICAST_PORT);
             ///packet = new DatagramPacket(posicao(username, x, y), posicao(username, x, y).length, address, MULTICAST_PORT);
             workingSocket.send(packet);
-            
+
             System.out.println("entrou no datagram");
         } catch (Exception e) {
             System.err.println(e);
         }
     }
 
-/*
+    /*
     public void enviaposicao(byte [] posicao) {
 
         System.out.println("posicao: " + posicao(username, x, y));
@@ -79,9 +84,8 @@ public class MiniCanvasSample extends JPanel {
             System.out.println(e);
         }
     }
-   
-
-    public byte[] recebeposicao() {
+     */
+    public static byte[] recebeposicao() {
         byte[] novaposicao = new byte[100];
 
         try {
@@ -96,7 +100,6 @@ public class MiniCanvasSample extends JPanel {
 
     }
 
-     */
     //Controla acoes do teclado
     public void MoveObject(KeyEvent e) {
         int keyCode = e.getKeyCode();
@@ -132,5 +135,7 @@ public class MiniCanvasSample extends JPanel {
         x = 300 / 2;
         y = 200 / 2;
         frame.setVisible(true);
+        player = new Jogador(username, x, y);
+        jogadores.add(player);
     }
 }
