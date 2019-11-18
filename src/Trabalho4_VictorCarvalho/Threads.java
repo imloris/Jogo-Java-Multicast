@@ -11,23 +11,38 @@ import java.util.*;
 
 public class Threads extends Thread {
 
-    public Threads() {
-        
+    MulticastSocket workingSocket;
+    MiniCanvasSample mc;
+
+    public Threads(MulticastSocket workingSocket, MiniCanvasSample mc) {
+        this.workingSocket = workingSocket;
+        this.mc = mc;
+
         start();
+        System.out.println("startou a thread");
     }
 
     public void run() {
 
         try {
             while (true) {
-                MiniCanvasSample.recebeposicao();
-       
+                byte array[] = new byte[1000];
+
+                DatagramPacket packet = new DatagramPacket(array, array.length);
+                workingSocket.receive(packet);
+                String novaposicao = new String(packet.getData()).trim();
+
+                String arrayString[] = novaposicao.split(" ");
+                
+                Jogador player = new Jogador(arrayString[0], Integer.parseInt(arrayString[1]), Integer.parseInt(arrayString[2]));
+
+                mc.msgThread(player);
+                
             }
 
         } catch (Exception e) {
-            System.err.println(e);
+            System.err.println("thread  " + e);
         }
 
     }
-
 }

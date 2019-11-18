@@ -38,11 +38,11 @@ public class MiniCanvasSample extends JPanel {
             workingSocket = new MulticastSocket(MULTICAST_PORT);
             group = InetAddress.getByName(MULTICAST_IP_ADDRESS);
             workingSocket.joinGroup(group);
-            new Threads();
+            new Threads(workingSocket, this);
             System.out.println("entrou no grupo");
 
         } catch (Exception err) {
-            System.out.println(err);
+            System.out.println("minicanvas: " + err);
         }
 
     }
@@ -55,49 +55,26 @@ public class MiniCanvasSample extends JPanel {
         g.setColor(Color.black);
         //Desenha o nome do usuario
 
-        g.drawString(username, x, y);
-
-        try {
-            System.out.println(jogadores);
-            address = InetAddress.getByName(MULTICAST_IP_ADDRESS);
-            packet = new DatagramPacket(posicao, posicao.length, address, MULTICAST_PORT);
-            ///packet = new DatagramPacket(posicao(username, x, y), posicao(username, x, y).length, address, MULTICAST_PORT);
-            workingSocket.send(packet);
-
-            System.out.println("entrou no datagram");
-        } catch (Exception e) {
-            System.err.println(e);
+       // g.drawString(username, x, y);
+        
+        for(Jogador j : jogadores){
+            g.drawString(j.getNome(), j.getX(), j.getY());
         }
     }
 
-    /*
-    public void enviaposicao(byte [] posicao) {
-
-        System.out.println("posicao: " + posicao(username, x, y));
-        try {
-            address = InetAddress.getByName(MULTICAST_IP_ADDRESS);
-            packet = new DatagramPacket(posicao(username, x, y), posicao(username, x, y).length, address, MULTICAST_PORT);
-
-            workingSocket.send(packet);
-
-        } catch (Exception e) {
-            System.out.println(e);
+    public void msgThread(Jogador player) {
+        boolean jatem = false;
+        for (Jogador j : jogadores) {
+            if (j.getNome().equals(player.getNome())) {
+                j.setX(player.getX());
+                j.setY(player.getY());
+                jatem = true;
+            }
         }
-    }
-     */
-    public static byte[] recebeposicao() {
-        byte[] novaposicao = new byte[100];
-
-        try {
-            DatagramPacket packet = new DatagramPacket(novaposicao, novaposicao.length);
-            workingSocket.receive(packet);
-            novaposicao = packet.getData();
-        } catch (Exception e) {
-            System.out.println(e);
+        if (!jatem) {
+            jogadores.add(player);
         }
-
-        return novaposicao;
-
+        repaint();
     }
 
     //Controla acoes do teclado
@@ -118,8 +95,27 @@ public class MiniCanvasSample extends JPanel {
                 x = x + offset;
                 break;
         }
+        String aux = "";
+
+        aux += username + " ";
+        aux += x + " ";
+        aux += y;
+
+        System.out.println(aux);
+        try {
+            System.out.println(jogadores);
+            address = InetAddress.getByName(MULTICAST_IP_ADDRESS);
+            packet = new DatagramPacket(aux.getBytes(), aux.getBytes().length, address, MULTICAST_PORT);
+            ///packet = new DatagramPacket(posicao(username, x, y), posicao(username, x, y).length, address, MULTICAST_PORT);
+            workingSocket.send(packet);
+
+            System.out.println("enviou a mensagem");
+        } catch (Exception err) {
+            System.out.println("move: " + err);
+        }
+
         //Redesenha com a nova posi��o
-        repaint();
+        //repaint();
     }
 
     public static void main(String[] args) {
@@ -130,7 +126,7 @@ public class MiniCanvasSample extends JPanel {
         frame.setSize(300, 200);
         //Nome do usuario gerado aleatoriamente
         Random rnd = new Random();
-        username = Integer.toString(rnd.nextInt());
+        username = Integer.toString(rnd.nextInt(50));
         //Posi��o inicial do texto
         x = 300 / 2;
         y = 200 / 2;
