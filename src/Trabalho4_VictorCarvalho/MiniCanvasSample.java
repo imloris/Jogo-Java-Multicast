@@ -14,7 +14,8 @@ public class MiniCanvasSample extends JPanel {
     static private int y = 0;
     private DatagramPacket packet;
     private InetAddress address;
-    private byte[] posicao;
+    static private Random rnd;
+    static private Rectangle rec;
 
     static Jogador player;
     static ArrayList<Jogador> jogadores = new ArrayList<Jogador>();
@@ -55,11 +56,45 @@ public class MiniCanvasSample extends JPanel {
         g.setColor(Color.black);
         //Desenha o nome do usuario
 
-       // g.drawString(username, x, y);
-        
-        for(Jogador j : jogadores){
+        // g.drawString(username, x, y);
+        for (Jogador j : jogadores) {
+
+            if (checaColisao()) {
+                g.setColor(Color.red);
+                g.drawRect(x, y, 10, 10);
+                g.fillRect(x, y, 10, 10);
+            }
+
             g.drawString(j.getNome(), j.getX(), j.getY());
+            g.drawRect(j.getX(), j.getY(), 10, 10);
+            g.fillRect(j.getX(), j.getY(), 10, 10);
+
+            System.out.println("j x: " + j.getX() + " j y: " + j.getY());
+            System.out.println("player x:" + player.getX() + "player y: " + player.getY());
+
+            /*
+            if (j.getX() - player.getX() <= 5 && j.getY() - player.getY() <=5) {
+                j.setX(rnd.nextInt(10));
+                j.setY(rnd.nextInt(10));
+            }
+             */
         }
+    }
+
+    public boolean checaColisao() {
+
+        for (Jogador playerJogador : jogadores) {
+            for (Jogador inimigosJogador : jogadores) {
+                if (inimigosJogador.getNome() != playerJogador.getNome()) {
+                    if (Math.abs(playerJogador.getX() - inimigosJogador.getX()) <= 10 && Math.abs(playerJogador.getY() - inimigosJogador.getY()) <= 10) {
+
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+
     }
 
     public void msgThread(Jogador player) {
@@ -68,19 +103,21 @@ public class MiniCanvasSample extends JPanel {
             if (j.getNome().equals(player.getNome())) {
                 j.setX(player.getX());
                 j.setY(player.getY());
+
                 jatem = true;
             }
         }
         if (!jatem) {
             jogadores.add(player);
         }
+
         repaint();
     }
 
     //Controla acoes do teclado
     public void MoveObject(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        int offset = 5;
+        int offset = 1;
         switch (keyCode) {
             case KeyEvent.VK_UP:
                 y = y - offset;
@@ -99,17 +136,13 @@ public class MiniCanvasSample extends JPanel {
 
         aux += username + " ";
         aux += x + " ";
-        aux += y;
+        aux += y + " ";
 
-        System.out.println(aux);
         try {
-            System.out.println(jogadores);
             address = InetAddress.getByName(MULTICAST_IP_ADDRESS);
             packet = new DatagramPacket(aux.getBytes(), aux.getBytes().length, address, MULTICAST_PORT);
-            ///packet = new DatagramPacket(posicao(username, x, y), posicao(username, x, y).length, address, MULTICAST_PORT);
             workingSocket.send(packet);
 
-            System.out.println("enviou a mensagem");
         } catch (Exception err) {
             System.out.println("move: " + err);
         }
@@ -123,13 +156,14 @@ public class MiniCanvasSample extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         MiniCanvasSample mCanvas = new MiniCanvasSample();
         frame.add(mCanvas);
-        frame.setSize(300, 200);
+        frame.setSize(500, 500);
         //Nome do usuario gerado aleatoriamente
-        Random rnd = new Random();
-        username = Integer.toString(rnd.nextInt(50));
+        rnd = new Random();
+        username = Integer.toString(rnd.nextInt(200));
         //Posi��o inicial do texto
-        x = 300 / 2;
-        y = 200 / 2;
+        x = rnd.nextInt(450);
+        y = rnd.nextInt(450);
+        rec = new Rectangle(x, y, 10, 10);
         frame.setVisible(true);
         player = new Jogador(username, x, y);
         jogadores.add(player);

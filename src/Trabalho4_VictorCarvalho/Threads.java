@@ -5,6 +5,7 @@
  */
 package Trabalho4_VictorCarvalho;
 
+import java.awt.Rectangle;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -33,11 +34,11 @@ public class Threads extends Thread {
                 String novaposicao = new String(packet.getData()).trim();
 
                 String arrayString[] = novaposicao.split(" ");
-                
+
                 Jogador player = new Jogador(arrayString[0], Integer.parseInt(arrayString[1]), Integer.parseInt(arrayString[2]));
 
                 mc.msgThread(player);
-                
+
             }
 
         } catch (Exception e) {

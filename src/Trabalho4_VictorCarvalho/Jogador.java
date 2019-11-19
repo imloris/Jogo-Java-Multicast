@@ -5,15 +5,18 @@
  */
 package Trabalho4_VictorCarvalho;
 
+import java.awt.Rectangle;
+
 /**
  *
  * @author vykto
  */
 public class Jogador {
+
     private String nome;
     private int x, y;
-    
-    public Jogador(String nome, int X, int Y){
+
+    public Jogador(String nome, int X, int Y) {
         this.nome = nome;
         this.x = X;
         this.y = Y;
@@ -42,5 +45,6 @@ public class Jogador {
     public void setY(int y) {
         this.y = y;
     }
-    
+
+
 }
