@@ -48,6 +48,8 @@ public class MiniCanvasSample extends JPanel {
 
     }
 
+
+////comentarios
     //Atualizacao da tela com o nome do usuario na posicao x,y
     public void paint(Graphics g) {
         //Obtem o foco para obter eventos de teclado
